@@ -1,0 +1,24 @@
+mat-card {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mfa-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.log-box {
+  max-height: 250px;
+  overflow-y: auto;
+  background: #f8f9fa;
+  font-family: monospace;
+  font-size: 13px;
+  padding: 12px;
+  border-radius: 6px;
+}

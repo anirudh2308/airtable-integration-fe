@@ -1,1 +1,19 @@
-<p>airtable-auth works!</p>
+<mat-card>
+  <h2>Airtable OAuth</h2>
+
+  <div *ngIf="!isConnected && !loading">
+    <p>Authorize this app to access your Airtable account.</p>
+    <button mat-raised-button color="primary" (click)="connect()">
+      Connect to Airtable
+    </button>
+  </div>
+
+  <div *ngIf="loading">
+    <p>🔄 Waiting for authorization...</p>
+  </div>
+
+  <div *ngIf="isConnected">
+    <h3>✅ Connected to Airtable!</h3>
+    <p>You can now fetch Bases, Tables, and Records.</p>
+  </div>
+</mat-card>

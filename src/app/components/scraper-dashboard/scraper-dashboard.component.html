@@ -1,1 +1,29 @@
-<p>scraper-dashboard works!</p>
+<mat-card>
+  <h2>Scraper Dashboard</h2>
+
+  <div class="mfa-section">
+    <mat-form-field appearance="outline">
+      <mat-label>MFA Code</mat-label>
+      <input
+        matInput
+        [(ngModel)]="mfaCode"
+        placeholder="Enter 6-digit code"
+        maxlength="6"
+      />
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="login()">
+      Login with MFA
+    </button>
+  </div>
+
+  <div class="scraper-actions">
+    <button mat-raised-button color="accent" (click)="runAll()">
+      Run Scraper
+    </button>
+  </div>
+
+  <div class="log-box" *ngIf="logs.length > 0">
+    <h4>Logs</h4>
+    <div *ngFor="let log of logs">{{ log }}</div>
+  </div>
+</mat-card>

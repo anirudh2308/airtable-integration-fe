@@ -1,3 +1,32 @@
+<mat-toolbar color="primary">
+  <span>Airtable Integration</span>
+  <span class="spacer"></span>
+
+  <a mat-button routerLink="/auth" routerLinkActive="active-link"> OAuth </a>
+
+  <a
+    mat-button
+    routerLink="/data"
+    routerLinkActive="active-link"
+    [class.disabled-link]="!(connected$ | async)"
+    [attr.aria-disabled]="!(connected$ | async)"
+    [routerLink]="(connected$ | async) ? '/data' : null"
+  >
+    Fetched Data
+  </a>
+
+  <a
+    mat-button
+    routerLink="/scraper"
+    routerLinkActive="active-link"
+    [class.disabled-link]="!(connected$ | async)"
+    [attr.aria-disabled]="!(connected$ | async)"
+    [routerLink]="(connected$ | async) ? '/scraper' : null"
+  >
+    Scraper
+  </a>
+</mat-toolbar>
+
 <div class="container">
   <router-outlet></router-outlet>
 </div>

@@ -1,0 +1,23 @@
+.spacer {
+  flex: 1 1 auto;
+}
+
+a[mat-button] {
+  color: white;
+  text-decoration: none;
+
+  &.active-link {
+    font-weight: 600;
+    border-bottom: 2px solid white;
+  }
+
+  &.disabled-link {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: default;
+  }
+}
+
+.container {
+  padding: 20px;
+}

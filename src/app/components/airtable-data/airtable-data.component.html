@@ -1,1 +1,40 @@
-<p>airtable-data works!</p>
+<mat-card>
+  <h2>Airtable Data Viewer</h2>
+  <p>Fetch all Bases, Tables, and Records from Airtable at once.</p>
+
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="fetchAll()"
+    [disabled]="loading"
+  >
+    {{ loading ? "Fetching..." : "Fetch All Data" }}
+  </button>
+
+  <div *ngIf="errorMsg" class="error">{{ errorMsg }}</div>
+
+  <div *ngIf="bases.length > 0" class="section">
+    <h4>Bases ({{ bases.length }})</h4>
+    <mat-list>
+      <mat-list-item *ngFor="let base of bases">{{ base.name }}</mat-list-item>
+    </mat-list>
+  </div>
+
+  <div *ngIf="tables.length > 0" class="section">
+    <h4>Tables ({{ tables.length }})</h4>
+    <mat-list>
+      <mat-list-item *ngFor="let table of tables">{{
+        table.name
+      }}</mat-list-item>
+    </mat-list>
+  </div>
+
+  <div *ngIf="records.length > 0" class="section">
+    <h4>Records ({{ records.length }})</h4>
+    <mat-list>
+      <mat-list-item *ngFor="let record of records">
+        {{ record.name || record.id }}
+      </mat-list-item>
+    </mat-list>
+  </div>
+</mat-card>
