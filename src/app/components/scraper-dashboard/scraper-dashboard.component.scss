@@ -2,23 +2,40 @@ mat-card {
   max-width: 600px;
   margin: 40px auto;
   padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  text-align: center;
 }
 
-.mfa-section {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.mfa-field {
+  width: 100%;
+  margin-bottom: 20px;
 }
 
-.log-box {
-  max-height: 250px;
-  overflow-y: auto;
-  background: #f8f9fa;
-  font-family: monospace;
-  font-size: 13px;
-  padding: 12px;
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.log-section {
+  text-align: left;
+  margin-top: 20px;
+
+  .log-box {
+    background: #f5f5f5;
+    border-radius: 6px;
+    padding: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 13px;
+  }
+}
+
+.success-box {
+  background: #e8f5e9;
   border-radius: 6px;
+  padding: 16px;
+  margin-top: 20px;
+  color: #2e7d32;
 }

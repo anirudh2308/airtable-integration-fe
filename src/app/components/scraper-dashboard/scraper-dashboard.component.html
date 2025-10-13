@@ -1,29 +1,41 @@
 <mat-card>
-  <h2>Scraper Dashboard</h2>
+  <h2>Custom Airtable Scraper</h2>
 
-  <div class="mfa-section">
-    <mat-form-field appearance="outline">
+  <div *ngIf="!success">
+    <mat-form-field appearance="outline" class="mfa-field">
       <mat-label>MFA Code</mat-label>
-      <input
-        matInput
-        [(ngModel)]="mfaCode"
-        placeholder="Enter 6-digit code"
-        maxlength="6"
-      />
+      <input matInput [(ngModel)]="mfaCode" />
     </mat-form-field>
-    <button mat-raised-button color="primary" (click)="login()">
-      Login with MFA
-    </button>
+
+    <div class="actions">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="login()"
+        [disabled]="loading"
+      >
+        {{ loading ? "Logging in..." : "Login & Save Cookies" }}
+      </button>
+
+      <button
+        mat-raised-button
+        color="accent"
+        (click)="runScraper()"
+        [disabled]="scraping"
+      >
+        {{ scraping ? "Scraping..." : "Run Scraper" }}
+      </button>
+    </div>
   </div>
 
-  <div class="scraper-actions">
-    <button mat-raised-button color="accent" (click)="runAll()">
-      Run Scraper
-    </button>
+  <div class="log-section">
+    <h3>Logs</h3>
+    <div class="log-box">
+      <div *ngFor="let line of logs">{{ line }}</div>
+    </div>
   </div>
 
-  <div class="log-box" *ngIf="logs.length > 0">
-    <h4>Logs</h4>
-    <div *ngFor="let log of logs">{{ log }}</div>
+  <div *ngIf="success" class="success-box">
+    <h3>✅ All records scraped successfully!</h3>
   </div>
 </mat-card>

@@ -10,14 +10,14 @@ export class ScraperService {
   constructor(private http: HttpClient) {}
 
   loginWithMFA(code: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/login`, { code });
+    return this.http.post(`${this.baseUrl}/login?code=${code}`, {});
   }
 
   runAll(): Observable<any> {
     return this.http.get(`${this.baseUrl}/run-all`);
   }
 
-  checkCookies(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/check-cookies`);
+  scrapeRecord(recordId: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/${recordId}`);
   }
 }
