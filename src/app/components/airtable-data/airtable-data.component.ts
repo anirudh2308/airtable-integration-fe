@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 import { AgGridModule } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 import { AirtableService } from '../../services/airtable.service';
@@ -17,6 +18,7 @@ import { AirtableService } from '../../services/airtable.service';
     MatButtonModule,
     MatTabsModule,
     MatProgressSpinnerModule,
+    MatIconModule,
     AgGridModule,
   ],
   templateUrl: './airtable-data.component.html',
@@ -26,6 +28,7 @@ export class AirtableDataComponent implements OnInit {
   bases: any[] = [];
   tables: any[] = [];
   records: any[] = [];
+  users: any[] = [];
   loading = false;
   errorMsg = '';
 
@@ -60,6 +63,12 @@ export class AirtableDataComponent implements OnInit {
     },
   ];
 
+  userCols: ColDef[] = [
+    { headerName: 'User ID', field: 'id', flex: 1, filter: true },
+    { headerName: 'Name', field: 'name', flex: 1.5, filter: true },
+    { headerName: 'Email', field: 'email', flex: 1 },
+  ];
+
   constructor(private airtable: AirtableService) {}
 
   ngOnInit() {
@@ -74,6 +83,7 @@ export class AirtableDataComponent implements OnInit {
         this.bases = res.bases || [];
         this.tables = res.tables || [];
         this.records = res.records || [];
+        this.users = res.users || [];
         this.loading = false;
       },
       error: (err) => {
@@ -84,11 +94,11 @@ export class AirtableDataComponent implements OnInit {
   }
 
   getTabIndex(tab: string): number {
-    return ['bases', 'tables', 'records'].indexOf(tab);
+    return ['bases', 'tables', 'records', 'users'].indexOf(tab);
   }
 
   onTabChange(index: number) {
-    this.activeTab = ['bases', 'tables', 'records'][index];
+    this.activeTab = ['bases', 'tables', 'records', 'users'][index];
   }
 
   fetchAll() {
@@ -97,6 +107,7 @@ export class AirtableDataComponent implements OnInit {
     this.bases = [];
     this.tables = [];
     this.records = [];
+    this.users = [];
 
     this.airtable.fetchAll().subscribe({
       next: (res: any) => {
@@ -104,6 +115,7 @@ export class AirtableDataComponent implements OnInit {
         this.bases = res?.bases || [];
         this.tables = res?.tables || [];
         this.records = res?.records || [];
+        this.users = res?.users || [];
         console.log('Airtable data fetched:', res);
         this.loading = false;
       },

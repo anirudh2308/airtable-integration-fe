@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../services/auth.service';
 import { catchError, of } from 'rxjs';
 import { ConnectionStateService } from '../../services/connection-state.service';
@@ -10,7 +12,13 @@ import { Router, ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-airtable-auth',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './airtable-auth.component.html',
   styleUrl: './airtable-auth.component.scss',
 })

@@ -4,16 +4,18 @@
   <div *ngIf="!isConnected && !loading">
     <p>Authorize this app to access your Airtable account.</p>
     <button mat-raised-button color="primary" (click)="connect()">
+      <mat-icon>login</mat-icon>
       Connect to Airtable
     </button>
   </div>
 
   <div *ngIf="loading">
+    <mat-spinner diameter="30"></mat-spinner>
     <p>Waiting for authorization...</p>
   </div>
 
   <div *ngIf="isConnected">
-    <h3>Connected to Airtable!</h3>
+    <h3><mat-icon color="accent">check_circle</mat-icon> Connected!</h3>
     <p>You can now fetch Bases, Tables, and Records.</p>
   </div>
 </mat-card>

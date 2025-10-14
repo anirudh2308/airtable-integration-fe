@@ -4,6 +4,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { ConnectionStateService } from './services/connection-state.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,7 @@ import { ConnectionStateService } from './services/connection-state.service';
     CommonModule,
     RouterModule,
     MatToolbarModule,
+    MatIconModule,
     MatButtonModule,
     AsyncPipe,
   ],

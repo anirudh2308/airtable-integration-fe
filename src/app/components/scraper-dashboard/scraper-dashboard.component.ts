@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
 import { ScraperService } from '../../services/scraper.service';
 import { AgGridModule } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
@@ -23,6 +24,7 @@ import { interval, Subscription } from 'rxjs';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     AgGridModule,
+    MatIconModule,
   ],
   templateUrl: './scraper-dashboard.component.html',
   styleUrls: ['./scraper-dashboard.component.scss'],

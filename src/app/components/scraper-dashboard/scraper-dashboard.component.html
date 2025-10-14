@@ -1,5 +1,5 @@
 <mat-card class="scraper-card">
-  <h2>Airtable Scraper</h2>
+  <h2><mat-icon color="accent">sync</mat-icon> Airtable Scraper</h2>
   <p>{{ message }}</p>
 
   <div *ngIf="!loggedIn" class="mfa-section">
@@ -7,7 +7,10 @@
       <mat-label>MFA Code</mat-label>
       <input matInput [(ngModel)]="mfaCode" placeholder="Enter MFA code" />
     </mat-form-field>
-    <button mat-raised-button color="primary" (click)="login()">Login</button>
+    <button mat-raised-button color="primary" (click)="login()">
+      <mat-icon>login</mat-icon>
+      Login
+    </button>
   </div>
 
   <div *ngIf="loggedIn && !running">
@@ -17,6 +20,7 @@
       (click)="runScraper()"
       *ngIf="!hasPreviousData"
     >
+      <mat-icon>play_arrow</mat-icon>
       Run Scraper
     </button>
     <button
@@ -25,17 +29,22 @@
       (click)="reRunScraper()"
       *ngIf="hasPreviousData"
     >
+      <mat-icon>replay</mat-icon>
       Re-run Scraper
     </button>
   </div>
 
   <div *ngIf="running" class="spinner">
     <mat-spinner diameter="40"></mat-spinner>
-    <p>Scraping... please wait.</p>
+    <p><mat-icon color="accent">hourglass_bottom</mat-icon> Scraping...</p>
   </div>
 
   <div *ngIf="finished && hasPreviousData" class="table-container">
-    <h3>Scraper Results ({{ resultsCount }})</h3>
+    <h3>
+      <mat-icon color="primary">check_circle</mat-icon>Scraper Results ({{
+        resultsCount
+      }})
+    </h3>
     <ag-grid-angular
       style="width: 100%; height: 600px"
       class="ag-theme-alpine"
