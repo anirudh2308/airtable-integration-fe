@@ -69,6 +69,9 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
   }
 
   private initScraperState() {
+    this.snack.open('Checking validity of cookies.', 'Dismiss', {
+      duration: 4000,
+    });
     this.scraper.checkStatus().subscribe({
       next: (res: any) => {
         if (res.loggedIn) {
