@@ -84,7 +84,14 @@ export class AirtableDataComponent implements OnInit {
         this.tables = res.tables || [];
         this.records = res.records || [];
         this.users = res.users || [];
-        this.loading = false;
+        if (
+          this.bases.length == 0 &&
+          this.tables.length == 0 &&
+          this.records.length == 0 &&
+          this.users.length == 0
+        )
+          this.fetchAll();
+        else this.loading = false;
       },
       error: (err) => {
         console.error('Error loading cached data:', err);
