@@ -2,7 +2,6 @@
   <h2>Airtable Scraper</h2>
   <p>{{ message }}</p>
 
-  <!-- 🔐 MFA login form -->
   <div *ngIf="!loggedIn" class="mfa-section">
     <mat-form-field>
       <mat-label>MFA Code</mat-label>
@@ -11,19 +10,16 @@
     <button mat-raised-button color="primary" (click)="login()">Login</button>
   </div>
 
-  <!-- 🧩 Run Scraper Button (hidden if data already exists) -->
   <div *ngIf="loggedIn && !hasPreviousData && !running">
     <button mat-raised-button color="accent" (click)="runScraper()">
       Run Scraper
     </button>
   </div>
 
-  <!-- ⏳ Progress Spinner -->
   <div *ngIf="running" class="spinner">
     <mat-spinner diameter="40"></mat-spinner>
   </div>
 
-  <!-- 📊 AG Grid Table -->
   <div *ngIf="finished && hasPreviousData" class="table-container">
     <h3>Scraper Results ({{ resultsCount }})</h3>
     <ag-grid-angular

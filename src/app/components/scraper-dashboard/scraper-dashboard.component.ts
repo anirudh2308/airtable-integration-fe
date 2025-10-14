@@ -37,7 +37,6 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
   private pollSub?: Subscription;
 
   colDefs: ColDef[] = [
-    { headerName: 'Base ID', field: 'baseId', flex: 1, filter: true },
     { headerName: 'Record ID', field: 'issueId', flex: 1, filter: true },
     { headerName: 'Column Type', field: 'columnType', flex: 1 },
     { headerName: 'Old Value', field: 'oldValue', flex: 1.5 },
