@@ -33,11 +33,11 @@ export class AirtableDataComponent {
         this.bases = res?.bases || [];
         this.tables = res?.tables || [];
         this.records = res?.records || [];
-        console.log('✅ All Airtable data fetched:', res);
+        console.log('All Airtable data fetched:', res);
         this.loading = false;
       },
       error: (err) => {
-        console.error('❌ Error fetching all data:', err);
+        console.error('Error fetching all data:', err);
         this.errorMsg = 'Failed to fetch Airtable data.';
         this.loading = false;
       },

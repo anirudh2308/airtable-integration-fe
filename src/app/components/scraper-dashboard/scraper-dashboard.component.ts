@@ -36,7 +36,6 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
   rowData: any[] = [];
   private pollSub?: Subscription;
 
-  /** 🔧 AG Grid configuration */
   colDefs: ColDef[] = [
     { headerName: 'Base ID', field: 'baseId', flex: 1, filter: true },
     { headerName: 'Record ID', field: 'issueId', flex: 1, filter: true },
@@ -66,25 +65,23 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
     this.pollSub?.unsubscribe();
   }
 
-  /** 🚀 Initialization: check login + check if results already exist */
   private initScraperState() {
     this.scraper.checkStatus().subscribe({
       next: (res: any) => {
         if (res.loggedIn) {
           this.loggedIn = true;
-          this.message = '✅ Logged in successfully.';
+          this.message = 'Logged in successfully.';
           this.checkExistingData();
         } else {
           this.startLoginPolling();
         }
       },
       error: () => {
-        this.message = '⚠️ Could not check login status.';
+        this.message = 'Could not check login status.';
       },
     });
   }
 
-  /** 🔁 Poll login status until cookies exist */
   private startLoginPolling() {
     this.message = 'Waiting for login session to be ready...';
     this.pollSub?.unsubscribe();
@@ -92,7 +89,7 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
       this.scraper.checkStatus().subscribe((res: any) => {
         if (res.loggedIn) {
           this.loggedIn = true;
-          this.message = '✅ Logged in successfully.';
+          this.message = 'Logged in successfully.';
           this.pollSub?.unsubscribe();
           this.checkExistingData();
         }
@@ -100,7 +97,6 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** 🔐 Submit MFA code and trigger login */
   login() {
     if (!this.mfaCode.trim()) return;
     this.message = 'Logging in...';
@@ -113,20 +109,19 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** 📦 Check if we already have scraped data in DB */
   private checkExistingData() {
     this.scraper.getAllResults().subscribe({
       next: (res: any) => {
         if (res.count > 0) {
           this.hasPreviousData = true;
           this.resultsCount = res.count;
-          this.message = `✅ Found ${res.count} previously scraped records.`;
+          this.message = `Found ${res.count} previously scraped records.`;
           console.log(res.data);
           this.rowData = res.data
             ? res.data.flatMap((entry: any) =>
                 (entry.data || []).map((d: any) => ({
                   ...d,
-                  recordId: entry.recordId, // retain parent context
+                  recordId: entry.recordId,
                 }))
               )
             : [];
@@ -138,15 +133,14 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
         }
       },
       error: () => {
-        this.message = '⚠️ Could not check previous scraper data.';
+        this.message = 'Could not check previous scraper data.';
       },
     });
   }
 
-  /** 🧩 Run scraper only if no previous data */
   runScraper() {
     if (this.hasPreviousData) {
-      this.message = `✅ Using ${this.resultsCount} existing records.`;
+      this.message = `Using ${this.resultsCount} existing records.`;
       this.finished = true;
       return;
     }
@@ -167,7 +161,6 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** ⏱️ Poll scraper progress until complete */
   private pollProgress() {
     this.pollSub?.unsubscribe();
     this.pollSub = interval(5000).subscribe(() => {
@@ -175,17 +168,16 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
         if (!res.running) {
           this.running = false;
           this.finished = true;
-          this.message = `✅ ${res.summary?.message || 'Scraper finished.'}`;
+          this.message = `${res.summary?.message || 'Scraper finished.'}`;
           this.pollSub?.unsubscribe();
           this.fetchResults();
         } else {
-          this.message = '⏳ Scraper still running...';
+          this.message = 'Scraper still running...';
         }
       });
     });
   }
 
-  /** 📄 Fetch all results once scraper completes */
   private fetchResults() {
     this.scraper.getAllResults().subscribe({
       next: (res: any) => {
@@ -196,12 +188,12 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
           ? res.data.flatMap((entry: any) =>
               (entry.data || []).map((d: any) => ({
                 ...d,
-                recordId: entry.recordId, // retain parent context
+                recordId: entry.recordId,
               }))
             )
           : [];
         console.log(this.rowData);
-        this.message = `✅ Scraper done — ${res.count} results fetched.`;
+        this.message = `Scraper done — ${res.count} results fetched.`;
       },
       error: (err) => {
         this.message = 'Failed to load results: ' + err.message;

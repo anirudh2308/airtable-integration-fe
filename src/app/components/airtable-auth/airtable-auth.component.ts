@@ -34,7 +34,7 @@ export class AirtableAuthComponent implements OnInit {
 
     const listener = (event: MessageEvent) => {
       if (event.data === 'oauth-success') {
-        console.log('✅ OAuth completed');
+        console.log('OAuth completed');
         popup.close();
         window.removeEventListener('message', listener);
         this.checkStatus();

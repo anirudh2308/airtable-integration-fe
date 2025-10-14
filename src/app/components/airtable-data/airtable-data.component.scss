@@ -12,7 +12,7 @@ mat-card {
   h2 {
     font-weight: 500;
     font-size: 1.6rem;
-    color: #3f51b5; // matches Indigo 500 from your theme
+    color: #3f51b5;
     margin-bottom: 4px;
   }
 
@@ -28,7 +28,7 @@ mat-card {
   }
 
   h4 {
-    color: #673ab7; // Deep Purple 500 (accent tone)
+    color: #673ab7;
     font-weight: 500;
     margin-bottom: 6px;
   }
@@ -59,7 +59,7 @@ mat-card {
       }
 
       &:hover {
-        background: rgba(63, 81, 181, 0.08); // Indigo hover tint
+        background: rgba(63, 81, 181, 0.08);
       }
     }
   }
