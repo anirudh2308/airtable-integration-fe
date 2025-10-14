@@ -37,11 +37,41 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
   private pollSub?: Subscription;
 
   colDefs: ColDef[] = [
-    { headerName: 'Record ID', field: 'issueId', flex: 1, filter: true },
-    { headerName: 'Column Type', field: 'columnType', flex: 1 },
-    { headerName: 'Old Value', field: 'oldValue', flex: 1.5 },
-    { headerName: 'New Value', field: 'newValue', flex: 1.5 },
-    { headerName: 'Author', field: 'authoredBy', flex: 1 },
+    {
+      headerName: 'Record ID',
+      field: 'issueId',
+      flex: 1,
+      filter: true,
+      resizable: true,
+    },
+    {
+      headerName: 'Column Type',
+      field: 'columnType',
+      flex: 1,
+      filter: true,
+      resizable: true,
+    },
+    {
+      headerName: 'Old Value',
+      field: 'oldValue',
+      flex: 1.5,
+      filter: true,
+      resizable: true,
+    },
+    {
+      headerName: 'New Value',
+      field: 'newValue',
+      flex: 1.5,
+      filter: true,
+      resizable: true,
+    },
+    {
+      headerName: 'Author',
+      field: 'authoredBy',
+      flex: 1,
+      filter: true,
+      resizable: true,
+    },
     {
       headerName: 'Date',
       field: 'createdDate',
@@ -121,6 +151,8 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
                 (entry.data || []).map((d: any) => ({
                   ...d,
                   recordId: entry.recordId,
+                  oldValue: d.oldValue ? d.oldValue : 'NULL',
+                  newValue: d.newValue ? d.newValue : 'NULL',
                 }))
               )
             : [];
@@ -188,6 +220,8 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
               (entry.data || []).map((d: any) => ({
                 ...d,
                 recordId: entry.recordId,
+                oldValue: d.oldValue ? d.oldValue : 'NULL',
+                newValue: d.newValue ? d.newValue : 'NULL',
               }))
             )
           : [];
