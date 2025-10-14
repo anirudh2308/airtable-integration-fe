@@ -1,11 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ScraperService } from '../../services/scraper.service';
+import { AgGridModule } from 'ag-grid-angular';
+import { ColDef } from 'ag-grid-community';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-scraper-dashboard',
@@ -14,57 +17,194 @@ import { ScraperService } from '../../services/scraper.service';
     CommonModule,
     FormsModule,
     MatCardModule,
-    MatButtonModule,
     MatInputModule,
+    MatButtonModule,
     MatProgressSpinnerModule,
+    AgGridModule,
   ],
   templateUrl: './scraper-dashboard.component.html',
-  styleUrl: './scraper-dashboard.component.scss',
+  styleUrls: ['./scraper-dashboard.component.scss'],
 })
-export class ScraperDashboardComponent {
+export class ScraperDashboardComponent implements OnInit, OnDestroy {
   mfaCode = '';
-  loading = false;
-  scraping = false;
-  logs: string[] = [];
-  success = false;
+  loggedIn = false;
+  running = false;
+  finished = false;
+  message = '';
+  resultsCount = 0;
+  hasPreviousData = false;
+  rowData: any[] = [];
+  private pollSub?: Subscription;
+
+  /** 🔧 AG Grid configuration */
+  colDefs: ColDef[] = [
+    { headerName: 'Base ID', field: 'baseId', flex: 1, filter: true },
+    { headerName: 'Record ID', field: 'issueId', flex: 1, filter: true },
+    { headerName: 'Column Type', field: 'columnType', flex: 1 },
+    { headerName: 'Old Value', field: 'oldValue', flex: 1.5 },
+    { headerName: 'New Value', field: 'newValue', flex: 1.5 },
+    { headerName: 'Author', field: 'authoredBy', flex: 1 },
+    {
+      headerName: 'Date',
+      field: 'createdDate',
+      flex: 1,
+      valueFormatter: (p) =>
+        new Date(p.value).toLocaleString('en-CA', {
+          dateStyle: 'short',
+          timeStyle: 'short',
+        }),
+    },
+  ];
 
   constructor(private scraper: ScraperService) {}
 
-  async login() {
-    if (!this.mfaCode.trim()) {
-      alert('Please enter MFA code');
-      return;
-    }
-    this.loading = true;
-    this.logs.push('🔐 Logging in with MFA...');
+  ngOnInit() {
+    this.initScraperState();
+  }
 
-    this.scraper.loginWithMFA(this.mfaCode).subscribe({
-      next: () => {
-        this.logs.push('✅ Login successful, session cookies refreshed.');
-        this.loading = false;
+  ngOnDestroy() {
+    this.pollSub?.unsubscribe();
+  }
+
+  /** 🚀 Initialization: check login + check if results already exist */
+  private initScraperState() {
+    this.scraper.checkStatus().subscribe({
+      next: (res: any) => {
+        if (res.loggedIn) {
+          this.loggedIn = true;
+          this.message = '✅ Logged in successfully.';
+          this.checkExistingData();
+        } else {
+          this.startLoginPolling();
+        }
       },
-      error: (err) => {
-        this.logs.push('❌ Login failed: ' + err.message);
-        this.loading = false;
+      error: () => {
+        this.message = '⚠️ Could not check login status.';
       },
     });
   }
 
+  /** 🔁 Poll login status until cookies exist */
+  private startLoginPolling() {
+    this.message = 'Waiting for login session to be ready...';
+    this.pollSub?.unsubscribe();
+    this.pollSub = interval(4000).subscribe(() => {
+      this.scraper.checkStatus().subscribe((res: any) => {
+        if (res.loggedIn) {
+          this.loggedIn = true;
+          this.message = '✅ Logged in successfully.';
+          this.pollSub?.unsubscribe();
+          this.checkExistingData();
+        }
+      });
+    });
+  }
+
+  /** 🔐 Submit MFA code and trigger login */
+  login() {
+    if (!this.mfaCode.trim()) return;
+    this.message = 'Logging in...';
+    this.scraper.loginWithMFA(this.mfaCode).subscribe({
+      next: () => {
+        this.message = 'MFA submitted. Waiting for login to complete...';
+        this.startLoginPolling();
+      },
+      error: () => (this.message = 'Login failed. Try again.'),
+    });
+  }
+
+  /** 📦 Check if we already have scraped data in DB */
+  private checkExistingData() {
+    this.scraper.getAllResults().subscribe({
+      next: (res: any) => {
+        if (res.count > 0) {
+          this.hasPreviousData = true;
+          this.resultsCount = res.count;
+          this.message = `✅ Found ${res.count} previously scraped records.`;
+          console.log(res.data);
+          this.rowData = res.data
+            ? res.data.flatMap((entry: any) =>
+                (entry.data || []).map((d: any) => ({
+                  ...d,
+                  recordId: entry.recordId, // retain parent context
+                }))
+              )
+            : [];
+          console.log(this.rowData);
+          this.finished = true;
+        } else {
+          this.hasPreviousData = false;
+          this.message = 'No scraped data found. You can run the scraper.';
+        }
+      },
+      error: () => {
+        this.message = '⚠️ Could not check previous scraper data.';
+      },
+    });
+  }
+
+  /** 🧩 Run scraper only if no previous data */
   runScraper() {
-    this.scraping = true;
-    this.logs.push('🧩 Starting scraper for all records...');
+    if (this.hasPreviousData) {
+      this.message = `✅ Using ${this.resultsCount} existing records.`;
+      this.finished = true;
+      return;
+    }
+
+    this.message = 'Running scraper...';
+    this.running = true;
+    this.finished = false;
 
     this.scraper.runAll().subscribe({
-      next: (res) => {
-        this.logs.push(
-          `✅ Scraper completed successfully: ${JSON.stringify(res)}`
-        );
-        this.scraping = false;
-        this.success = true;
+      next: () => {
+        this.message = 'Scraper started...';
+        this.pollProgress();
       },
       error: (err) => {
-        this.logs.push('❌ Scraper failed: ' + err.message);
-        this.scraping = false;
+        this.running = false;
+        this.message = 'Scraper failed: ' + err.message;
+      },
+    });
+  }
+
+  /** ⏱️ Poll scraper progress until complete */
+  private pollProgress() {
+    this.pollSub?.unsubscribe();
+    this.pollSub = interval(5000).subscribe(() => {
+      this.scraper.checkProgress().subscribe((res: any) => {
+        if (!res.running) {
+          this.running = false;
+          this.finished = true;
+          this.message = `✅ ${res.summary?.message || 'Scraper finished.'}`;
+          this.pollSub?.unsubscribe();
+          this.fetchResults();
+        } else {
+          this.message = '⏳ Scraper still running...';
+        }
+      });
+    });
+  }
+
+  /** 📄 Fetch all results once scraper completes */
+  private fetchResults() {
+    this.scraper.getAllResults().subscribe({
+      next: (res: any) => {
+        this.resultsCount = res.count || 0;
+        this.hasPreviousData = this.resultsCount > 0;
+        console.log(this.rowData);
+        this.rowData = res.data
+          ? res.data.flatMap((entry: any) =>
+              (entry.data || []).map((d: any) => ({
+                ...d,
+                recordId: entry.recordId, // retain parent context
+              }))
+            )
+          : [];
+        console.log(this.rowData);
+        this.message = `✅ Scraper done — ${res.count} results fetched.`;
+      },
+      error: (err) => {
+        this.message = 'Failed to load results: ' + err.message;
       },
     });
   }
