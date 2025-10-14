@@ -8,8 +8,5 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 
 bootstrapApplication(AppComponent, {
   ...appConfig,
-  providers: [
-    ...(appConfig.providers || []),
-    provideAnimations(), // 👈 this enables MatSnackBar animations & overlays
-  ],
+  providers: [...(appConfig.providers || []), provideAnimations()],
 });
