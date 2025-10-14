@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { AuthService } from '../../services/auth.service';
 import { catchError, of } from 'rxjs';
 import { ConnectionStateService } from '../../services/connection-state.service';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-airtable-auth',
@@ -19,7 +20,9 @@ export class AirtableAuthComponent implements OnInit {
 
   constructor(
     private auth: AuthService,
-    private state: ConnectionStateService
+    private state: ConnectionStateService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -57,9 +60,15 @@ export class AirtableAuthComponent implements OnInit {
       )
       .subscribe((res: any) => {
         const connected = !!res?.connected;
-        this.isConnected = connected;
-        this.state.setConnected(connected);
+        const valid = !!res?.tokenValid;
+        this.isConnected = connected && valid;
+        this.state.setConnected(connected && valid);
         this.loading = false;
+
+        const redirect = this.route.snapshot.queryParamMap.get('redirect');
+        if (this.isConnected && redirect) {
+          this.router.navigateByUrl(redirect);
+        }
       });
   }
 }

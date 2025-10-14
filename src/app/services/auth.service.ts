@@ -24,4 +24,8 @@ export class AuthService {
   getStatus(): Observable<any> {
     return this.http.get(`${this.baseUrl}/status`);
   }
+
+  checkConnection(): Observable<any> {
+    return this.getStatus();
+  }
 }

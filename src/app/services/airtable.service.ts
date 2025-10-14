@@ -9,7 +9,11 @@ export class AirtableService {
 
   constructor(private http: HttpClient) {}
 
-  fetchAll(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/fetch-all`);
+  getAllFromDB() {
+    return this.http.get(`${environment.apiBaseUrl}/airtable/get-all`);
+  }
+
+  fetchAll() {
+    return this.http.get(`${environment.apiBaseUrl}/airtable/fetch-all`);
   }
 }
