@@ -18,8 +18,10 @@
     [selectedIndex]="getTabIndex(activeTab)"
     (selectedIndexChange)="onTabChange($event)"
   >
-    <mat-tab label="Bases" (click)="setTab('bases')">
-      <mat-icon matPrefix>dns</mat-icon>
+    <mat-tab (click)="setTab('bases')">
+      <ng-template mat-tab-label>
+        <mat-icon matPrefix>dns</mat-icon> Bases
+      </ng-template>
       <div class="grid-wrapper" *ngIf="!loading">
         <ag-grid-angular
           style="width: 100%; height: 550px"
@@ -39,8 +41,10 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Tables" (click)="setTab('tables')">
-      <mat-icon matPrefix>table_chart</mat-icon>
+    <mat-tab (click)="setTab('tables')">
+      <ng-template mat-tab-label>
+        <mat-icon matPrefix>table_chart</mat-icon> Tables
+      </ng-template>
       <div class="grid-wrapper" *ngIf="!loading">
         <ag-grid-angular
           style="width: 100%; height: 550px"
@@ -60,8 +64,10 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Records" (click)="setTab('records')">
-      <mat-icon matPrefix>receipt_long</mat-icon>
+    <mat-tab (click)="setTab('records')">
+      <ng-template mat-tab-label>
+        <mat-icon matPrefix>receipt_long</mat-icon> Records
+      </ng-template>
       <div class="grid-wrapper" *ngIf="!loading">
         <ag-grid-angular
           style="width: 100%; height: 550px"
@@ -81,8 +87,10 @@
       </div>
     </mat-tab>
 
-    <mat-tab label="Users" (click)="setTab('users')">
-      <mat-icon matPrefix>group</mat-icon>
+    <mat-tab (click)="setTab('users')">
+      <ng-template mat-tab-label>
+        <mat-icon matPrefix>group</mat-icon> Users
+      </ng-template>
       <div class="grid-wrapper" *ngIf="!loading">
         <ag-grid-angular
           style="width: 100%; height: 550px"

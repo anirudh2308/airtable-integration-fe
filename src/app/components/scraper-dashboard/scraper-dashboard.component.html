@@ -1,6 +1,6 @@
 <mat-card class="scraper-card">
   <h2><mat-icon color="accent">sync</mat-icon> Airtable Scraper</h2>
-  <p>{{ message }}</p>
+  <span>{{ message }}</span>
 
   <div *ngIf="!loggedIn" class="mfa-section">
     <mat-form-field>
@@ -51,7 +51,7 @@
       [columnDefs]="colDefs"
       [rowData]="rowData"
       [pagination]="true"
-      [paginationPageSize]="10"
+      [paginationPageSize]="20"
     ></ag-grid-angular>
   </div>
 </mat-card>
