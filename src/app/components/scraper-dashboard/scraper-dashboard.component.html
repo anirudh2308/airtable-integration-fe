@@ -10,14 +10,28 @@
     <button mat-raised-button color="primary" (click)="login()">Login</button>
   </div>
 
-  <div *ngIf="loggedIn && !hasPreviousData && !running">
-    <button mat-raised-button color="accent" (click)="runScraper()">
+  <div *ngIf="loggedIn && !running">
+    <button
+      mat-raised-button
+      color="accent"
+      (click)="runScraper()"
+      *ngIf="!hasPreviousData"
+    >
       Run Scraper
+    </button>
+    <button
+      mat-raised-button
+      color="warn"
+      (click)="reRunScraper()"
+      *ngIf="hasPreviousData"
+    >
+      Re-run Scraper
     </button>
   </div>
 
   <div *ngIf="running" class="spinner">
     <mat-spinner diameter="40"></mat-spinner>
+    <p>Scraping... please wait.</p>
   </div>
 
   <div *ngIf="finished && hasPreviousData" class="table-container">
@@ -29,7 +43,6 @@
       [rowData]="rowData"
       [pagination]="true"
       [paginationPageSize]="10"
-    >
-    </ag-grid-angular>
+    ></ag-grid-angular>
   </div>
 </mat-card>

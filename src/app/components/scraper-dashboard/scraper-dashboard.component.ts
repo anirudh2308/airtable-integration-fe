@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ScraperService } from '../../services/scraper.service';
 import { AgGridModule } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
@@ -20,6 +21,7 @@ import { interval, Subscription } from 'rxjs';
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
     AgGridModule,
   ],
   templateUrl: './scraper-dashboard.component.html',
@@ -37,45 +39,15 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
   private pollSub?: Subscription;
 
   colDefs: ColDef[] = [
-    {
-      headerName: 'Record ID',
-      field: 'issueId',
-      flex: 1,
-      filter: true,
-      resizable: true,
-    },
-    {
-      headerName: 'Column Type',
-      field: 'columnType',
-      flex: 1,
-      filter: true,
-      resizable: true,
-    },
-    {
-      headerName: 'Old Value',
-      field: 'oldValue',
-      flex: 1.5,
-      filter: true,
-      resizable: true,
-    },
-    {
-      headerName: 'New Value',
-      field: 'newValue',
-      flex: 1.5,
-      filter: true,
-      resizable: true,
-    },
-    {
-      headerName: 'Author',
-      field: 'authoredBy',
-      flex: 1,
-      filter: true,
-      resizable: true,
-    },
+    { headerName: 'Record ID', field: 'issueId', flex: 1, filter: true },
+    { headerName: 'Column Type', field: 'columnType', flex: 1, filter: true },
+    { headerName: 'Old Value', field: 'oldValue', flex: 1.5, filter: true },
+    { headerName: 'New Value', field: 'newValue', flex: 1.5, filter: true },
+    { headerName: 'Author', field: 'authoredBy', flex: 1, filter: true },
     {
       headerName: 'Date',
       field: 'createdDate',
-      flex: 1,
+      flex: 1.2,
       valueFormatter: (p) =>
         new Date(p.value).toLocaleString('en-CA', {
           dateStyle: 'short',
@@ -84,7 +56,7 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
     },
   ];
 
-  constructor(private scraper: ScraperService) {}
+  constructor(private scraper: ScraperService, private snack: MatSnackBar) {}
 
   ngOnInit() {
     this.initScraperState();
@@ -102,39 +74,57 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
           this.message = 'Logged in successfully.';
           this.checkExistingData();
         } else {
-          this.startLoginPolling();
+          this.loggedIn = false;
+          this.message = 'Session invalid or expired.';
+          this.snack.open(
+            'Session invalid or expired. Please log in using MFA.',
+            'Dismiss',
+            { duration: 4000 }
+          );
         }
       },
       error: () => {
         this.message = 'Could not check login status.';
+        this.snack.open('Could not reach scraper service.', 'Dismiss', {
+          duration: 3000,
+        });
       },
-    });
-  }
-
-  private startLoginPolling() {
-    this.message = 'Waiting for login session to be ready...';
-    this.pollSub?.unsubscribe();
-    this.pollSub = interval(4000).subscribe(() => {
-      this.scraper.checkStatus().subscribe((res: any) => {
-        if (res.loggedIn) {
-          this.loggedIn = true;
-          this.message = 'Logged in successfully.';
-          this.pollSub?.unsubscribe();
-          this.checkExistingData();
-        }
-      });
     });
   }
 
   login() {
     if (!this.mfaCode.trim()) return;
-    this.message = 'Logging in...';
+    this.message = 'Submitting MFA...';
     this.scraper.loginWithMFA(this.mfaCode).subscribe({
       next: () => {
         this.message = 'MFA submitted. Waiting for login to complete...';
+        this.snack.open('MFA submitted successfully!', 'OK', {
+          duration: 3000,
+        });
         this.startLoginPolling();
       },
-      error: () => (this.message = 'Login failed. Try again.'),
+      error: () => {
+        this.message = 'Login failed. Try again.';
+        this.snack.open('Login failed. Please retry.', 'Dismiss', {
+          duration: 4000,
+        });
+      },
+    });
+  }
+
+  private startLoginPolling() {
+    this.pollSub?.unsubscribe();
+    this.pollSub = interval(4000).subscribe(() => {
+      this.scraper.checkStatus().subscribe((res: any) => {
+        if (res.loggedIn) {
+          this.loggedIn = true;
+          this.snack.open('Login successful! Session active.', 'OK', {
+            duration: 3000,
+          });
+          this.pollSub?.unsubscribe();
+          this.checkExistingData();
+        }
+      });
     });
   }
 
@@ -145,21 +135,12 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
           this.hasPreviousData = true;
           this.resultsCount = res.count;
           this.message = `Found ${res.count} previously scraped records.`;
-          console.log(res.data);
-          this.rowData = res.data
-            ? res.data.flatMap((entry: any) =>
-                (entry.data || []).map((d: any) => ({
-                  ...d,
-                  recordId: entry.recordId,
-                  oldValue: d.oldValue ? d.oldValue : 'NULL',
-                  newValue: d.newValue ? d.newValue : 'NULL',
-                }))
-              )
-            : [];
-          console.log(this.rowData);
+          this.rowData = this.flattenScraperData(res.data);
           this.finished = true;
+          console.log('Table ready from DB cache');
         } else {
           this.hasPreviousData = false;
+          this.finished = false;
           this.message = 'No scraped data found. You can run the scraper.';
         }
       },
@@ -169,27 +150,41 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  runScraper() {
-    if (this.hasPreviousData) {
-      this.message = `Using ${this.resultsCount} existing records.`;
-      this.finished = true;
-      return;
-    }
+  private flattenScraperData(data: any[]): any[] {
+    return data
+      ? data.flatMap((entry: any) =>
+          (entry.data || []).map((d: any) => ({
+            ...d,
+            recordId: entry.recordId,
+            oldValue: d.oldValue || 'NULL',
+            newValue: d.newValue || 'NULL',
+          }))
+        )
+      : [];
+  }
 
-    this.message = 'Running scraper...';
+  runScraper() {
+    this.message = 'Starting scraper...';
     this.running = true;
     this.finished = false;
+    this.snack.open('Scraper started!', 'OK', { duration: 2000 });
 
     this.scraper.runAll().subscribe({
-      next: () => {
-        this.message = 'Scraper started...';
-        this.pollProgress();
-      },
+      next: () => this.pollProgress(),
       error: (err) => {
         this.running = false;
         this.message = 'Scraper failed: ' + err.message;
+        this.snack.open('Scraper failed. Check console.', 'Dismiss', {
+          duration: 4000,
+        });
       },
     });
+  }
+
+  reRunScraper() {
+    this.hasPreviousData = false;
+    this.rowData = [];
+    this.runScraper();
   }
 
   private pollProgress() {
@@ -200,6 +195,9 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
           this.running = false;
           this.finished = true;
           this.message = `${res.summary?.message || 'Scraper finished.'}`;
+          this.snack.open('Scraper finished successfully!', 'OK', {
+            duration: 3000,
+          });
           this.pollSub?.unsubscribe();
           this.fetchResults();
         } else {
@@ -214,18 +212,7 @@ export class ScraperDashboardComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         this.resultsCount = res.count || 0;
         this.hasPreviousData = this.resultsCount > 0;
-        console.log(this.rowData);
-        this.rowData = res.data
-          ? res.data.flatMap((entry: any) =>
-              (entry.data || []).map((d: any) => ({
-                ...d,
-                recordId: entry.recordId,
-                oldValue: d.oldValue ? d.oldValue : 'NULL',
-                newValue: d.newValue ? d.newValue : 'NULL',
-              }))
-            )
-          : [];
-        console.log(this.rowData);
+        this.rowData = this.flattenScraperData(res.data);
         this.message = `Scraper done — ${res.count} results fetched.`;
       },
       error: (err) => {
